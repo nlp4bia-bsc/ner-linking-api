@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 import json
 
-class ModelAnnotation(ABC):
+class ModelClassification(ABC):
     @abstractmethod
-    def predict(self, text, app):
+    def predict_text(self, text):
         pass
 
-    def serialize(self, text, annotations, footer):
+    def serialize(self, text, logits, footer):
         """This function implements the Common Data Model v2"""
         output = {
             "nlp_output": {
@@ -32,10 +32,10 @@ class ModelAnnotation(ABC):
                     "nlp_processing_pipeline_name": self.__class__.__name__,
                     "nlp_processing_pipeline_version": "1.0",
                 },
-                "annotations": annotations
+                "class_logits": logits
             },
             "nlp_service_info": {
-                "service_app_name": "DT4H NLP Processor",
+                "service_app_name": "NLP Classifier",
                 "service_language": "en",
                 "service_version": "1.0",
                 "service_model": self.__class__.__name__
