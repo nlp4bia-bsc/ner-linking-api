@@ -1,10 +1,9 @@
-from models.model_classification import ModelClassification
-
 from transformers import AutoModel, AutoTokenizer
 import torch
 from torch import nn
 from typing import Dict
-from accelerate import Accelerator
+
+from models.model_classification import ModelClassification
 
 class BinaryBERT(nn.Module):
     def __init__(
@@ -13,7 +12,12 @@ class BinaryBERT(nn.Module):
         ):
 
         super(BinaryBERT, self).__init__()
-        self.bert = AutoModel.from_pretrained(config.model_path)
+        self.config = config
+        self.bert = AutoModel.from_pretrained(
+            self.config.model_name,
+            cache_dir=self.config.cache_dir,
+            local_files_only=True
+        )
         last_size = self.bert.config.hidden_size
         layers = []
         for num_dims in config.classifier_layers:
@@ -24,6 +28,8 @@ class BinaryBERT(nn.Module):
         layers.append(nn.Linear(last_size, config.output_dim))
         layers.append(nn.Softmax(dim=-1))
         self.classifier_layers = nn.Sequential(*layers)
+
+        self._load_model()
 
     def forward(
             self, 
@@ -42,22 +48,26 @@ class BinaryBERT(nn.Module):
         # (bs, hidden_size)
         return self.classifier_layers(pooled_output) # (bs, output_dim)
     
+    def _load_model(self):
+        self.load_state_dict(torch.load(self.config.model_save_path))
+    
 class PredictionPipeline(ModelClassification):
     def __init__(
             self,
             model: nn.Module,
             config: Dict,
-            accelerator: Accelerator
         ):
-        self.tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            config.model_name,
+            cache_dir=config.cache_dir,
+            local_files_only=True
+        )
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = model.to(self.device)
         self.config = config
-        if accelerator:
-            self.model, self.device = accelerator.prepare(model)
         self.model.eval()
 
-    def predict_text(
+    def predict(
             self,
             text: str,
             footer: Dict

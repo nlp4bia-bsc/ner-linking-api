@@ -1,18 +1,25 @@
 from flask import Flask, request, jsonify
 from flasgger import Swagger
-from app.models.dictionary_baseline import DictionaryLookupModel
-import sys
+
+from config.model_config import ModelConfig
+from models.classifier_baseline import BinaryBERT, PredictionPipeline
 
 app = Flask(__name__)
 swagger = Swagger(app)
 
-# Initialize the model
-model = DictionaryLookupModel("./spanish_entities.csv")
+def get_model():
+    config = ModelConfig()
+    config.__init__()
+    model = BinaryBERT(config)
+    pipeline = PredictionPipeline(model, config)
+    return pipeline
+
+model = get_model()
 
 @app.route('/process_text', methods=['POST'])
 def process_text():
     """
-    Process text using NER Dictionary Lookup
+    Process text using the trained classification model
     ---
     parameters:
       - name: body
@@ -28,7 +35,7 @@ def process_text():
               description: The text to process
     responses:
       200:
-        description: Processed text with NER annotations
+        description: Processed text with classification results
     """
     data = request.json
     if not isinstance(data, dict):
@@ -44,7 +51,7 @@ def process_text():
     if not text:
         return jsonify({"error": "'text' is required"}), 400
 
-    result = model.predict(text, app)
+    result = model.predict(text)
     return jsonify(result)
 
 @app.route('/process_bulk', methods=['POST'])
@@ -91,7 +98,7 @@ def process_bulk():
         if not text:
             return jsonify({"error": "Each item must contain 'text'"}), 400
 
-        result = model.predict(text, app, item.get('footer'))
+        result = model.predict(text, item.get('footer'))
         results.append(result)
 
     return jsonify(results)

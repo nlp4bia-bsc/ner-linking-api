@@ -3,3 +3,4 @@ __pycache__/
 app/saved_models/*
 class_venv/
 .env/
+app/models/huggingface_mirror/*

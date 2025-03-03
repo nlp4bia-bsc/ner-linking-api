@@ -1,5 +1,3 @@
-import torch
-from accelerate import Accelerator
 import argparse
 
 from config.model_config import ModelConfig
@@ -19,11 +17,8 @@ def parse_arguments():
 def main(text):
     config = ModelConfig()
     config.__init__()
-    # accelerator = Accelerator()
-    accelerator = None
     model = BinaryBERT(config)
-    model.load_state_dict(torch.load(config.model_save_path+'model.pth'))
-    pipeline = PredictionPipeline(model, config, accelerator)
+    pipeline = PredictionPipeline(model, config)
     random_footer = {
         "provider_id": "1",
         "person_id": "2",
@@ -33,7 +28,7 @@ def main(text):
         "note_datetime": "6",
         "note_title": "7"
     }
-    return pipeline.predict_text(text, random_footer)
+    return pipeline.predict(text, random_footer)
 
 if __name__ == "__main__":
     args = parse_arguments()

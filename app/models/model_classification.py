@@ -4,7 +4,7 @@ import json
 
 class ModelClassification(ABC):
     @abstractmethod
-    def predict_text(self, text):
+    def predict(self, text):
         pass
 
     def serialize(self, text, logits, footer):
