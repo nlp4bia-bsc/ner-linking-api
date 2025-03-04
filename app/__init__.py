@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 from flasgger import Swagger
 
-from config.model_config import ModelConfig
-from models.classifier_baseline import BinaryBERT, PredictionPipeline
+from app.config.model_config import ModelConfig
+from app.models.classifier_baseline import BinaryBERT, PredictionPipeline
 
 app = Flask(__name__)
 swagger = Swagger(app)

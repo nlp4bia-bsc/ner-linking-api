@@ -4,3 +4,4 @@ app/saved_models/*
 class_venv/
 .env/
 app/models/huggingface_mirror/*
+app/test_init.py

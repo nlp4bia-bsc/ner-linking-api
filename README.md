@@ -34,7 +34,7 @@ This CSV file is used by the model to recognize entities in the text.
 Build and run the service using Docker Compose:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 This will start the service on port 8000.
 

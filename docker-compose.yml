@@ -7,12 +7,12 @@ services:
       DICTIONARY_FILE:
       LANGUAGE: es
     ports:
-      - 8002:8002
+      - 8002:8000
     volumes:
       - .:/app
     restart: unless-stopped
     privileged: true
-    command: flask run --host=0.0.0.0 --port=8002
+    command: flask run --host=0.0.0.0 --port=8000
 
 networks:
   default:
