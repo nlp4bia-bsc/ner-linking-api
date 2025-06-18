@@ -22,7 +22,7 @@ cd <repository-directory>
 
 To do so from the terminal, go to the **app/models** directory and execute:
 ```bash
-huggingface-cli snapshot-download <pretrained_model_hf_path> --cache-dir ./huggingface_mirror
+huggingface-cli download <pretrained_model_hf_path> --cache-dir ./huggingface_mirror
 ```
 To do so using python you can execute
 ```python
