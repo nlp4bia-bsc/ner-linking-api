@@ -34,7 +34,10 @@ snapshot_download(
 )
 ```
 
-3. Build and Run the Docker Container
+3. Load you model --as a state dictionary-- into the app directory and reference the path in the aforementioned config path.
+**IMPORTANT:** This model must have been finetuned using the same model constructor  as referenced in the **app/models/model_baseline.py** file, in this case `BinaryBERT`
+
+4. Build and Run the Docker Container
 Build and run the service using Docker Compose:
 
 ```bash
@@ -42,7 +45,7 @@ docker-compose up --build
 ```
 This will start the service on port 8002. The port can be changed in the docker-compose file.
 
-4. Verify the Service is Running
+5. Verify the Service is Running
 You can open your browser or run a curl request to http://localhost:8002 to ensure the service is up and running.
 
 ## Available Endpoints
@@ -225,3 +228,11 @@ Example Response
 ```bash
 docker-compose down
 ```
+
+## Trouble Shooting
+When calling the endpoint, if an internal error occurs it is much more complicated to debug than if the inference pipeline is executed directly. To facilitate debugging in case of errors, I have added a testing file called `test_init.py` which you can call alongside a sample text like follows:
+
+```bash
+python test_init.py --text "sample text"
+```
+Bear in mind you will have to create a virtual environment with the modules defined in `requirements.txt` installed
