@@ -1,7 +1,7 @@
 import argparse
 
-from config.model_config import ModelConfig
-from models.classifier_baseline import BinaryBERT, PredictionPipeline
+from app.config.model_config import ModelConfig
+from app.models.classifier_baseline import BinaryBERT, PredictionPipeline
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run the script.")
