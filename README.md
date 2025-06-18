@@ -43,7 +43,7 @@ docker-compose up --build
 This will start the service on port 8002. The port can be changed in the docker-compose file.
 
 4. Verify the Service is Running
-You can open your browser or run a curl request to http://localhost:8000 to ensure the service is up and running.
+You can open your browser or run a curl request to http://localhost:8002 to ensure the service is up and running.
 
 ## Available Endpoints
 
