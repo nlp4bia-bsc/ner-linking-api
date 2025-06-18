@@ -51,13 +51,13 @@ def process_text():
     if not text:
         return jsonify({"error": "'text' is required"}), 400
 
-    result = model.predict(text)
+    result = model.predict(text, data.get('footer'))
     return jsonify(result)
 
 @app.route('/process_bulk', methods=['POST'])
 def process_bulk():
     """
-    Process multiple texts using NER Dictionary Lookup
+    Process multiple texts using the trained classification model
     ---
     parameters:
       - name: body

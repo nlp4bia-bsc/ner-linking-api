@@ -36,7 +36,7 @@ class ModelClassification(ABC):
             },
             "nlp_service_info": {
                 "service_app_name": "NLP Classifier",
-                "service_language": "en",
+                "service_language": "es",
                 "service_version": "1.0",
                 "service_model": self.__class__.__name__
             }
