@@ -1,6 +1,6 @@
 services:
   classifiation-api:
-    container_name: classifiation
+    container_name: ner-linking-api
     build: .
     user: root
     environment:
