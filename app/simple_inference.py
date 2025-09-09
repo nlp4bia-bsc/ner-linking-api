@@ -80,15 +80,15 @@ def write_to_ann(ann_path, results):
 
 def join_all_entities(results):
     num_texts = len(results[0])  # number of documents
-    combined_results = []
+    entities_all = []
 
     for text_idx in range(num_texts):
-        combined_entities = []
+        entities_file = []
         for model_idx in range(len(results)):
-            combined_entities.extend(results[model_idx][text_idx])
-        combined_results.append(combined_entities)
-
-    return combined_results
+            entities_file.extend(results[model_idx][text_idx])
+        entities_file = sorted(entities_file, key=lambda x: (x['start'], -x['end']))
+        entities_all.append(entities_file)
+    return entities_all
 
 
 def ner_inference(texts, nerl_models_config, agg_strat="first"):

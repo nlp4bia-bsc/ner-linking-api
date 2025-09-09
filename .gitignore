@@ -2,6 +2,6 @@
 __pycache__/
 app/saved_models/*
 class_venv/
-.env/
+.venv/
 app/models/huggingface_mirror/*
 app/test_init.py
