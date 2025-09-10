@@ -16,7 +16,7 @@ def nerl_process_bulk():
     parameters:
       - content: list
         - text: str
-      - nerl_models_config: list
+      - nerl_models_config: list (optional)
         - ner_model_path: str
         - gazetteer_path: str
     responses:
@@ -44,6 +44,7 @@ def nerl_process_bulk():
     results = ner_inference(texts, nerl_models_config, agg_strat="first")
 
     # TODO: Here we will add normalization to the gazetteers
+    # norm_results = nel_inference(results, nerl_models_config, combined=True)
 
     return jsonify(results)
 

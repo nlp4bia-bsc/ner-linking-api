@@ -91,7 +91,7 @@ def join_all_entities(results):
     return entities_all
 
 
-def ner_inference(texts, nerl_models_config, agg_strat="first"):
+def ner_inference(texts, nerl_models_config, agg_strat="first", combined=False):
 
     # Regex for pretokenization (splitting words and punctuation)
     PRETOKENIZATION_REGEX = re.compile(
@@ -153,8 +153,9 @@ def ner_inference(texts, nerl_models_config, agg_strat="first"):
             print(f"Finished {i_txt+1}/{len(texts)} ({round((i_txt+1)*100/len(texts), 3)}%)")
         # NOTE: Here we could also do normalization and link all mentions from results_model
         results.append(results_model)
-    results_combined = join_all_entities(results)
-    return results_combined
+    if combined:
+        return join_all_entities(results)
+    return results
 
 
 def main(argv):
