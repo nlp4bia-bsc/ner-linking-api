@@ -10,13 +10,11 @@ Usage example:
 Author: Jan Rodríguez Miret
 """
 
-import os
 import re
 import argparse
 import sys
 import torch
-from glob import glob
-from transformers import RobertaForTokenClassification, AutoTokenizer, pipeline
+from transformers import pipeline
 from spacy.lang.es import Spanish
 
 

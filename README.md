@@ -15,8 +15,9 @@ pip install -r app/requirements.txt
 
 ### 🛠 (Recommended) Configure the default models and gazetteers
 
-To avoid sending the `nerl_models_config` on each request, you can just configure the default models and gazetteers to be used in `app/config.py`.
-Anyway, if you provide them in the request, they will override the default ones specified.
+To avoid sending the `nerl_models_config` on each request, you can just configure the default models and gazetteers to be used in `app/config.py`. Note that model paths can also be Hugging Face identifiers (e.g. *BSC-NLP4BIA/bsc-bio-ehr-es-carmen-symptemist*). In such case, the models will be downloaded the first time and saved in local cache for future uses.
+
+Anyway, if you provide them in the HTTP request, they will override the default ones specified.
 
 ## 🏃‍♀️ Running the service
 
@@ -51,7 +52,7 @@ parameters:
       - content: list
         - text: str
       - nerl_models_config: list
-        - ner_model_path: str
+        - ner_model_path: str (local path or HF identifier)
         - gazetteer_path: str
 ```
 Example:
