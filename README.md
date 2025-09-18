@@ -53,20 +53,22 @@ parameters:
         - text: str
       - nerl_models_config: list
         - ner_model_path: str (local path or HF identifier)
+        - nel_model_path: str (local path or HF identifier)
         - gazetteer_path: str
+        - vectorized_gazetteer_path: str (optional)
 ```
 Example:
 - Input
 ```
 {
-    "content": [
-        {
-            "text": "Este es un texto de ejemplo con un paciente con mucha tos, mocos y fiebre, procedente de Almería, que además tenía edemas."
-        },
-        {
-            "text": "Paciente femenina de 46 años que llega a urgencias con convulsiones graves."
-        }
-    ]
+  "content": [
+    {
+      "text": "Paciente con mucha tos, mocos y fiebre. Test de Gripe A negativo."
+    },
+    {
+      "text": "Mujer diabética acude a urgencias desorientada y con convulsiones."
+    }
+  ]
 }
 ```
 - Output
@@ -74,48 +76,86 @@ Example:
 [
     [
         {
-            "end": 57,
-            "entity_group": "SINTOMA",
-            "score": 0.9999017715454102,
-            "start": 54,
-            "word": "tos"
+            "code": "49727002",
+            "end": 22,
+            "nel_score": 1.0,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9999,
+            "span": "tos",
+            "start": 19,
+            "term": "tos"
         },
         {
+            "code": "301291007",
+            "end": 29,
+            "nel_score": 0.7996,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9999,
+            "span": "mocos",
+            "start": 24,
+            "term": "esputo acuoso"
+        },
+        {
+            "code": "64882008",
+            "end": 38,
+            "nel_score": 1.0,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9999,
+            "span": "fiebre",
+            "start": 32,
+            "term": "fiebre"
+        },
+        {
+            "code": "441119003",
             "end": 64,
-            "entity_group": "SINTOMA",
-            "score": 0.999840497970581,
-            "start": 59,
-            "word": "mocos"
+            "nel_score": 0.831,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9997,
+            "span": "Test de Gripe A negativo",
+            "start": 40,
+            "term": "prueba para la detección de virus respiratorios (adenovirus, rinovirus, virus sincitial respiratorio, parainfluenza e influenza) negativa"
         },
         {
-            "end": 73,
-            "entity_group": "SINTOMA",
-            "score": 0.9998804330825806,
-            "start": 67,
-            "word": "fiebre"
-        },
-        {
-            "end": 96,
-            "entity_group": "LUGAR_NATAL",
-            "score": 0.9973543882369995,
-            "start": 89,
-            "word": "Almería"
-        },
-        {
-            "end": 121,
-            "entity_group": "SINTOMA",
-            "score": 0.9940962791442871,
-            "start": 115,
-            "word": "edemas"
+            "code": "442438000",
+            "end": 55,
+            "nel_score": 0.9106,
+            "ner_class": "ENFERMEDAD",
+            "ner_score": 0.9997,
+            "span": "Gripe A",
+            "start": 48,
+            "term": "gripe causada por virus Influenza A"
         }
     ],
     [
         {
-            "end": 74,
-            "entity_group": "SINTOMA",
-            "score": 0.9996104836463928,
-            "start": 55,
-            "word": "convulsiones graves"
+            "code": "73211009",
+            "end": 15,
+            "nel_score": 0.7994,
+            "ner_class": "ENFERMEDAD",
+            "ner_score": 0.9939,
+            "span": "diabética",
+            "start": 6,
+            "term": "diabetes mellitus"
+        },
+        {
+            "code": "62476001",
+            "end": 46,
+            "nel_score": 0.9681,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9999,
+            "span": "desorientada",
+            "start": 34,
+            "term": "desorientado"
+        },
+        {
+            "code": "91175000",
+            "end": 65,
+            "nel_score": 0.9399,
+            "ner_class": "SINTOMA",
+            "ner_score": 0.9999,
+            "span": "convulsiones",
+            "start": 53,
+            "term": "convulsión"
         }
     ]
 ]

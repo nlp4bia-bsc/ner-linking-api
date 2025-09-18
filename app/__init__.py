@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 #from flasgger import Swagger
 from simple_inference import ner_inference
+from normalization import nel_inference
 from config import NERL_MODELS_CONFIG
 
 app = Flask(__name__)
@@ -44,9 +45,9 @@ def nerl_process_bulk():
     results = ner_inference(texts, nerl_models_config, agg_strat="first")
 
     # TODO: Here we will add normalization to the gazetteers
-    # norm_results = nel_inference(results, nerl_models_config, combined=True)
+    norm_results = nel_inference(results, nerl_models_config, combined=True)
 
-    return jsonify(results)
+    return jsonify(norm_results)
 
 if __name__ == '__main__':
     app.run(debug=True)

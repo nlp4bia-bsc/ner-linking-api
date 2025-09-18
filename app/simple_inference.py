@@ -62,6 +62,8 @@ def align_results(results_pre, added_spaces, start_sent_offset):
         added_spaces_between = list(filter(lambda offset: (offset > entity['start']) & (offset < entity['end']), added_spaces))
         aligned_entity['word'] = entity['word'].strip()
         aligned_entity['word'] = ''.join([char for i, char in enumerate(aligned_entity['word']) if i + aligned_entity['start'] not in added_spaces_between])
+        aligned_entity['span'] = aligned_entity.pop('word')
+        aligned_entity['ner_class'] = aligned_entity.pop('entity_group')
         aligned_entity['start'] = start_sent_offset + entity['start'] - num_added_spaces_before
         aligned_entity['end'] = start_sent_offset + entity['end'] - num_added_spaces_after
         aligned_results.append(aligned_entity)
@@ -141,7 +143,8 @@ def ner_inference(texts, nerl_models_config, agg_strat="first", combined=False):
                     results_pre = pipe(sentence_pretokenized)
                     # Convert numpy types to native Python types for JSON serialization
                     for entity in results_pre:
-                        entity['score'] = float(entity['score'])
+                        entity['score'] = round(float(entity['score']), 4)
+                        entity['ner_score'] = entity.pop('score')
                     # Align model results to original text offsets
                     # Use sentence.start_char + line_start_offset for robust offset alignment
                     results_sent = align_results(results_pre, added_spaces, sentence.start_char + line_start_offset)
