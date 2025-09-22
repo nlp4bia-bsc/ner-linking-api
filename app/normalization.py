@@ -76,6 +76,16 @@ def nel_inference(nerl_results, nerl_models_config, combined=True):
     # nerl_results contains the output of the NER step. This function adds the NEL fields information
 
     for mentions_list, config in zip(nerl_results, nerl_models_config):
+        mentions = []
+        mention_dicts = []
+        for mentions_text in mentions_list:
+            for mention_dict in mentions_text:
+                mentions.append(mention_dict['span'])
+                mention_dicts.append(mention_dict)
+
+        if len(mentions) == 0:
+            continue
+
         nel_model_path = config["nel_model_path"]
         try:
             gazetteer_path = config["gazetteer_path"]
@@ -85,13 +95,6 @@ def nel_inference(nerl_results, nerl_models_config, combined=True):
             vectorized_gazetteer_path = config["vectorized_gazetteer_path"]
         except KeyError:
             vectorized_gazetteer_path = None
-
-        mentions = []
-        mention_dicts = []
-        for mentions_text in mentions_list:
-            for mention_dict in mentions_text:
-                mentions.append(mention_dict['span'])
-                mention_dicts.append(mention_dict)
 
         output = run_nel_inference(gazetteer=gazetteer_path,
                                    input_file=None, # No input file, mentions are directly provided
