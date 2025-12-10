@@ -1,15 +1,17 @@
 NERL_MODELS_CONFIG = [
-    # {"ner_model_path": "models/baritone-enfermedad-tagger-v1", "gazetteer_path": "gazetteers/symptoms.tsv"},
-    # {"ner_model_path": "models/baritone-sintoma-tagger-v1", "gazetteer_path": "gazetteers/diseases.tsv"},
-    # {"ner_model_path": "models/bsc-bio-ehr-es-carmen-medprocner", "gazetteer_path": "gazetteers/procedures.tsv"},
-    # {"ner_model_path": "models/bsc-bio-ehr-es-carmen-drugtemist", "gazetteer_path": "gazetteers/drugs.tsv"},
-    {"ner_model_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/ner_models/carmen-core-models/bsc-bio-ehr-es-carmen-distemist",
-     "nel_model_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/nel_models/ICB-UMA--ClinLinker-KB-GP-st",
-     "gazetteer_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/gazetteers/distemist_gazetteer_es.tsv",
-     "vectorized_gazetteer_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/gazetteers/vectorized_distemist_gazetteer_es.pt"},
-    {"ner_model_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/ner_models/carmen-core-models/bsc-bio-ehr-es-carmen-symptemist",
-     "nel_model_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/nel_models/ICB-UMA--ClinLinker-KB-GP-st",
-     "gazetteer_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/gazetteers/symptemist_gazetteer_es.tsv",
-     "vectorized_gazetteer_path": "/mnt/c/Users/scanton/BSC/NER-NEL-API/gazetteers/vectorized_symptemist_gazetteer_es.pt"},
-    #{"ner_model_path": "/home/jan/bsc/location-sub-tagger", "gazetteer_path": "gazetteers/locations.tsv"},
+    {
+        "ner_model_path": "BSC-NLP4BIA/bsc-bio-ehr-es-carmen-distemist",
+        "nel_model_path": "ICB-UMA/ClinLinker-KB-GP",
+        "gazetteer_path": "gazetteers/dictionary_distemist.tsv",
+        "vectorized_gazetteer_path": "gazetteers/vectorized_distemist_gazetteer_es.pt",
+     },
+    {
+        "ner_model_path": "BSC-NLP4BIA/bsc-bio-ehr-es-carmen-symptemist",
+        "nel_model_path": "ICB-UMA/ClinLinker-KB-GP",
+        "gazetteer_path": "gazetteers/symptemist_gazetter_snomed_ES_v2.tsv",
+        "vectorized_gazetteer_path": "gazetteers/vectorized_symptemist_gazetteer_es.pt",
+     },
 ]
+
+# Negation/Uncertainty tagger model path
+NEGATION_TAGGER_MODEL_PATH = "BSC-NLP4BIA/negation-tagger"

@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 from simple_inference import join_all_entities
 
 
-def run_nel_inference(gazetteer, input_file, output_file, model, k=10, store_vector_db=None, vector_db_file='vector_db.pt', input_mentions=None, save_output=True):
+def run_nel_inference(gazetteer, input_file, output_file, model, k=10, vector_db_path='vector_db.pt', input_mentions=None, save_output=True):
 
     print('Loading model...')
     st_model = SentenceTransformer(model)
@@ -26,10 +26,11 @@ def run_nel_inference(gazetteer, input_file, output_file, model, k=10, store_vec
     #term2code = gazetteer_df.set_index("term")["code"].to_dict()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    st_model.to(device)
 
-    if os.path.exists(vector_db_file):
+    if os.path.exists(vector_db_path):
         print("Loading vector database from file...")
-        vector_db = torch.load(vector_db_file, map_location=device)
+        vector_db = torch.load(vector_db_path, map_location=device)
     else:
         print("Vector database not found. Computing vector database...")
         vector_db = st_model.encode(
@@ -39,11 +40,8 @@ def run_nel_inference(gazetteer, input_file, output_file, model, k=10, store_vec
             batch_size=4096,
             device=device.type  # make sure encoding runs on the same device
         )
-
-
-    if store_vector_db is not None:
-        torch.save(vector_db, store_vector_db)
-        print(f"Vector database stored at {store_vector_db}")
+        torch.save(vector_db, vector_db_path)
+        print(f"Vector database saved at {vector_db_path}")
 
     biencoder = DenseRetriever(df_candidates=gazetteer_df, vector_db=vector_db, model_or_path=st_model)
 
@@ -101,7 +99,7 @@ def nel_inference(nerl_results, nerl_models_config, combined=True):
                                    output_file=None, # No need to save output to file
                                    model=nel_model_path,
                                    k=1, # Only the top candidate is wanted
-                                   vector_db_file=vectorized_gazetteer_path,
+                                   vector_db_path=vectorized_gazetteer_path,
                                    input_mentions=mentions,
                                    save_output=False)
 
@@ -120,8 +118,6 @@ def nel_inference(nerl_results, nerl_models_config, combined=True):
 
 
 
-from optparse import OptionParser
-
 def main(argv = None):
     parser = OptionParser()
     parser.add_option("-g", "--gazetteer", dest="gazetteer", help="gazetteer, tab-separated values extension (.tsv)", default="SpanishSnomed.tsv")
@@ -129,8 +125,7 @@ def main(argv = None):
     parser.add_option("-o", "--output", dest="output_file", help="output file, tab-separated values extension (.tsv)",default="output.tsv")
     parser.add_option("-m", "--model", dest="model", help="model to be used", default="ICB-UMA/ClinLinker-KB-GP")
     parser.add_option("-k", "--top_k", dest="k", type="int", help="number of top candidates to retrieve (default 10)", default=10)
-    parser.add_option("-s", "--store_vector_db", dest="store_vector_db", help="path to the file if the vector database of the gazetteer terms wants to be stored to be reused", default=None)
-    parser.add_option("-v", "--vector_db_file", dest="vector_db_file", help="path to the vector database of the gazetteer terms (default 'vector_db.pt')", default='vector_db.pt')
+    parser.add_option("-v", "--vector_db_path", dest="vector_db_path", help="path to the vector database cache file (default 'vector_db.pt')", default='vector_db.pt')
     #parser.add_option("-tsv", "--tsv_format", dest="tsv", type="bool", help="whether to store the output in TSV format", default=False)
     (options, args) = parser.parse_args(argv)
 
@@ -140,8 +135,7 @@ def main(argv = None):
         output_file=options.output_file,
         model=options.model,
         k=options.k,
-        store_vector_db=options.store_vector_db,
-        vector_db_file=options.vector_db_file
+        vector_db_path=options.vector_db_path
     )
 
 

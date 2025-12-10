@@ -1,7 +1,7 @@
 """
 simple_inference.py
 
-This script performs token classification (e.g., NER) inference on a set of text files using a HuggingFace Transformers model.
+This script performs NER (i.e., token classification) inference on a set of text files using a HuggingFace Transformers model.
 It reads .txt files, runs the model, and writes .ann annotation files in BRAT format.
 
 Usage example:
@@ -91,9 +91,20 @@ def join_all_entities(results):
     return entities_all
 
 
-def ner_inference(texts, nerl_models_config, agg_strat="first", combined=False):
-
-    # Regex for pretokenization (splitting words and punctuation)
+def _process_texts_with_model(texts, model_checkpoint, agg_strat="first"):
+    """
+    Generic function to process texts with a token classification model.
+    Used by both ner_inference() and negation_inference().
+    
+    Args:
+        texts (list): List of text strings to process
+        model_checkpoint: Model checkpoint (HF Hub id or local path)
+        agg_strat (str): Aggregation strategy for token classification
+    
+    Returns:
+        list: List of lists containing entities for each text
+    """
+    # Regex for pretokenization
     PRETOKENIZATION_REGEX = re.compile(
         r'([0-9A-Za-zÀ-ÖØ-öø-ÿ]+|[^0-9A-Za-zÀ-ÖØ-öø-ÿ])')
     
@@ -101,59 +112,58 @@ def ner_inference(texts, nerl_models_config, agg_strat="first", combined=False):
     nlp = Spanish()
     nlp.add_pipe("sentencizer")
     device = 0 if torch.cuda.is_available() else -1
+    pipe = pipeline("token-classification", model=model_checkpoint, aggregation_strategy=agg_strat, device=device)
+    results_all_texts = []
+    # Process each text
+    for i_txt, text in enumerate(texts):
+        lines = text.splitlines()
+        results_text = []
+        
+        # Track the offset of the start of each line in the file
+        line_start_offset = 0
+        for line in lines:
+            doc = nlp(line)
+            sents = list(doc.sents)
+            for sentence in sents:
+                # Pretokenize sentence for model compatibility
+                pretokens = [t for t in PRETOKENIZATION_REGEX.split(sentence.text) if t]
+                # Add space between two non-space pretokens
+                i_pret = 1
+                len_pretokens = len(pretokens)
+                while i_pret < len_pretokens:
+                    if (not pretokens[i_pret-1].isspace() and not pretokens[i_pret].isspace()):
+                        pretokens.insert(i_pret, " ")
+                        len_pretokens = len(pretokens)
+                        i_pret += 1
+                    i_pret += 1
+                sentence_pretokenized = ''.join(pretokens)
+                # Find where spaces were added
+                added_spaces = get_added_spaces(sentence.text, sentence_pretokenized)
+                # Run model inference
+                results_pre = pipe(sentence_pretokenized)
+                # Convert numpy types to native Python types for JSON serialization
+                for entity in results_pre:
+                    entity['score'] = round(float(entity['score']), 4)
+                    entity['ner_score'] = entity.pop('score')
+                # Align model results to original text offsets
+                results_sent = align_results(results_pre, added_spaces, sentence.start_char + line_start_offset)
+                results_text.extend(results_sent)
+            line_start_offset += len(line)
+        
+        results_all_texts.append(results_text)
+        print(f"Finished {i_txt+1}/{len(texts)} ({round((i_txt+1)*100/len(texts), 3)}%)")
+    
+    return results_all_texts
+
+
+def ner_inference(texts, nerl_models_config, agg_strat="first", combined=False):
+
     results = []
     for nerl_model_config in nerl_models_config:
-        ner_model_path = nerl_model_config["ner_model_path"]
-        pipe = pipeline("token-classification", model=ner_model_path, aggregation_strategy=agg_strat, device=device) # "simple" allows for different tags in a word, otherwise "first", "average", or "max".
-        results_model = []
-        # Process each .txt file
-        for i_txt, text in enumerate(texts):
-            lines = text.splitlines() 
-
-            results_model_file = []
-            
-            # Track the offset of the start of each line in the file
-            line_start_offset = 0
-            for line in lines:
-                doc = nlp(line)
-                sents = list(doc.sents)
-                for sentence in sents:
-                    # Pretokenize sentence for model compatibility
-                    pretokens = [t for t in PRETOKENIZATION_REGEX.split(sentence.text) if t]
-                    # Add space between two non-space pretokens (we cannot join by whitespace directly,
-                    # because of double whitespaces, tabs).
-                    # This is necessary because the model expects tokens to be separated by spaces.
-                    # The loop checks each pair of consecutive pretokens, and if both are not whitespace,
-                    # it inserts a space between them. After inserting, it updates the length and index
-                    # to account for the new space. This ensures that the pretokenized sentence matches
-                    # the expected input format for the model, and that the mapping between original and
-                    # pretokenized text can be reconstructed for offset alignment.
-                    i_pret = 1
-                    len_pretokens = len(pretokens)
-                    while i_pret < len_pretokens:
-                        if (not pretokens[i_pret-1].isspace() and not pretokens[i_pret].isspace()):
-                            pretokens.insert(i_pret, " ")
-                            len_pretokens = len(pretokens)
-                            i_pret += 1 # Move one more because we added one before
-                        i_pret += 1
-                    sentence_pretokenized = ''.join(pretokens)
-                    # Find where spaces were added
-                    added_spaces = get_added_spaces(sentence.text, sentence_pretokenized)
-                    # Run model inference
-                    results_pre = pipe(sentence_pretokenized)
-                    # Convert numpy types to native Python types for JSON serialization
-                    for entity in results_pre:
-                        entity['score'] = round(float(entity['score']), 4)
-                        entity['ner_score'] = entity.pop('score')
-                    # Align model results to original text offsets
-                    # Use sentence.start_char + line_start_offset for robust offset alignment
-                    results_sent = align_results(results_pre, added_spaces, sentence.start_char + line_start_offset)
-                    results_model_file.extend(results_sent)
-                line_start_offset += len(line)
-            results_model.append(results_model_file)
-            print(f"Finished {i_txt+1}/{len(texts)} ({round((i_txt+1)*100/len(texts), 3)}%)")
-        # NOTE: Here we could also do normalization and link all mentions from results_model
+        model_checkpoint = nerl_model_config["ner_model_path"]
+        results_model = _process_texts_with_model(texts, model_checkpoint, agg_strat=agg_strat)
         results.append(results_model)
+    
     if combined:
         return join_all_entities(results)
     return results
