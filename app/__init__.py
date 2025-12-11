@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 #from flasgger import Swagger
 from simple_inference import ner_inference
 from normalization import nel_inference
+from negation import add_negation_uncertainty_attributes
 from config import NERL_MODELS_CONFIG
 
 app = Flask(__name__)
@@ -47,7 +48,10 @@ def nerl_process_bulk():
     # TODO: Here we will add normalization to the gazetteers
     norm_results = nel_inference(results, nerl_models_config, combined=True)
 
-    return jsonify(norm_results)
+    # Apply negation/uncertainty detection and add attributes to normalized results
+    final_results = add_negation_uncertainty_attributes(norm_results, texts)
+
+    return jsonify(final_results)
 
 if __name__ == '__main__':
     app.run(debug=True)

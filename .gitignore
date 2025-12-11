@@ -1,3 +1,4 @@
+.vscode
 *.pyc
 __pycache__/
 app/saved_models/*
@@ -5,3 +6,4 @@ class_venv/
 .venv/
 app/models/huggingface_mirror/*
 app/test_init.py
+app/gazetteers/*pt
