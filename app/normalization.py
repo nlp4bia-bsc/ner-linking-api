@@ -20,6 +20,7 @@ def run_nel_inference(gazetteer, input_file, output_file, model, k=10, vector_db
     else:
         mentions = input_mentions
         input_df = pd.DataFrame({"span": mentions})
+        mentions = input_df.span.unique().tolist()
 
     terms = gazetteer_df["term"].tolist()
         
